@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="ASR Time">
+<title>ASR Plumbing Time Sheet</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:Arial,sans-serif;background:#eef0f4;color:#1a2744;padding-bottom:90px}
+.hdr{background:#1a2744;color:#fff;padding:12px 16px 10px;position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.hdr-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.co{font-size:9px;letter-spacing:3px;color:#7a9ac4;text-transform:uppercase}
+.ti{font-size:20px;font-weight:bold;line-height:1.1}
+.nm{font-size:11px;color:#8fb0d8;margin-top:1px}
+.saved{font-size:10px;font-weight:bold;color:rgba(255,255,255,.22);letter-spacing:1px;transition:color .4s;margin-top:4px;text-align:right}
+.saved.on{color:#4cde7a}
+.wnav{display:flex;align-items:center;background:rgba(255,255,255,.09);border-radius:9px;padding:6px 8px;gap:8px}
+.wnav-btn{flex-shrink:0;width:36px;height:36px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:8px;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.wnav-mid{flex:1;text-align:center}
+.wnav-lbl{font-size:13px;font-weight:bold;line-height:1.2}
+.wnav-back{display:none;font-size:10px;color:#8fb0d8;background:none;border:none;text-decoration:underline;cursor:pointer;margin-top:3px;padding:0;width:100%}
+.tbar{background:#253460;color:#fff;display:flex;overflow-x:auto;border-bottom:1px solid rgba(255,255,255,.06)}
+.tbar::-webkit-scrollbar{display:none}
+.tcell{padding:9px 16px;border-right:1px solid rgba(255,255,255,.1);flex-shrink:0}
+.tcell-lbl{font-size:8px;letter-spacing:2px;color:#7a9ac4;text-transform:uppercase;margin-bottom:1px}
+.tcell-num{font-size:20px;font-weight:bold;line-height:1}
+.tcell-unit{font-size:10px;color:#7a9ac4;margin-left:2px}
+.cal{margin:10px 12px 0;background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.08);overflow:hidden}
+.cal-hdr{background:#1a2744;padding:9px 14px;display:flex;align-items:center;justify-content:space-between}
+.cal-hdr-lbl{font-size:10px;font-weight:bold;color:#8fb0d8;letter-spacing:1.5px;text-transform:uppercase}
+.cal-status{font-size:10px;color:#4a6080;font-style:italic;background:none;border:none;cursor:pointer;padding:0}
+.cal-empty{padding:14px 16px;font-size:13px;color:#bbb;text-align:center}
+.cal-ev{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-top:1px solid #f0f0f0}
+.cal-ev.done{background:#f6fff6}
+.cal-dot{width:34px;height:34px;border-radius:8px;background:#e8eeff;color:#1a2744;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:bold;flex-shrink:0}
+.cal-dot.done{background:#d4edda;color:#2e7d32}
+.cal-info{flex:1;min-width:0}
+.cal-name{font-weight:bold;font-size:13px;color:#1a2744}
+.cal-time{font-size:11px;color:#777;margin-top:1px}
+.cal-desc{font-size:11px;color:#aaa;margin-top:1px}
+.cal-btn{flex-shrink:0;padding:6px 11px;border-radius:7px;font-size:12px;font-weight:bold;border:none;background:#1a2744;color:#fff;cursor:pointer;align-self:center}
+.cal-btn.done{background:#d4edda;color:#2e7d32;cursor:default}
+.entries{padding:10px 12px}
+.day-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 4px 4px}
+.day-hdr-lbl{font-size:11px;font-weight:bold;color:#7a9ac4;letter-spacing:1.5px;text-transform:uppercase}
+.day-hdr-hrs{font-size:11px;color:#aaa}
+.card{background:#fff;border-radius:12px;margin-bottom:9px;box-shadow:0 1px 4px rgba(0,0,0,.07);border:2px solid transparent;position:relative;transition:border-color .15s,box-shadow .15s}
+.card.open{border-color:#1a2744;box-shadow:0 3px 14px rgba(26,39,68,.16);z-index:5}
+.card-top{display:flex;align-items:center;padding:12px 13px;cursor:pointer;gap:10px;user-select:none}
+.c-dot{width:36px;height:36px;border-radius:8px;background:#eef0f4;color:#555;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;flex-shrink:0;transition:background .15s,color .15s}
+.card.open .c-dot{background:#1a2744;color:#fff}
+.c-main{flex:1;min-width:0}
+.c-name{font-weight:bold;font-size:14px;color:#1a2744;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c-name.empty{color:#ccc;font-weight:normal}
+.c-sub{font-size:11px;color:#aaa;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c-hrs{text-align:right;flex-shrink:0}
+.c-num{font-size:19px;font-weight:bold;color:#ddd;line-height:1}
+.c-num.v{color:#1a2744}
+.c-lbl{font-size:9px;color:#ccc}
+.c-chev{color:#ccc;font-size:15px;flex-shrink:0;transition:transform .15s}
+.card.open .c-chev{transform:rotate(180deg)}
+.c-form{display:none;padding:2px 13px 14px;border-top:1px solid #f2f2f2}
+.card.open .c-form{display:block}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:9px}
+.ff{grid-column:1/-1}
+.fl{font-size:9px;font-weight:bold;color:#aaa;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px}
+.fi{width:100%;border:1.5px solid #e4e6ea;border-radius:9px;padding:10px 12px;font-size:15px;font-family:Arial,sans-serif;outline:none;background:#f8f9fb;-webkit-appearance:none;appearance:none;color:#1a2744}
+.fi:focus{border-color:#1a2744}
+.rm-btn{margin-top:12px;width:100%;padding:10px;background:#fff3f3;color:#c0392b;border:1px solid #f5c6c6;border-radius:9px;font-size:13px;font-weight:bold;cursor:pointer}
+.acw{position:relative}
+.acd{position:absolute;top:calc(100% + 3px);left:0;right:0;background:#fff;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.16);border:1.5px solid #dde1ea;z-index:999;overflow:hidden;max-height:200px;overflow-y:auto;display:none}
+.acd.show{display:block}
+.aci{padding:12px 14px;font-size:14px;cursor:pointer;border-bottom:1px solid #f2f2f2;display:flex;align-items:center;gap:8px}
+.aci:last-child{border-bottom:none}
+.aci:active{background:#f0f4ff}
+.ach{font-weight:bold;color:#1a2744}
+.fab-row{position:fixed;bottom:24px;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:14px;z-index:100;pointer-events:none}
+.fab-exp{pointer-events:all;background:#fff;color:#1a2744;border:2px solid #1a2744;border-radius:28px;padding:0 18px;height:46px;font-size:13px;font-weight:bold;cursor:pointer;box-shadow:0 4px 14px rgba(26,39,68,.2);display:flex;align-items:center;gap:5px}
+.fab-add{pointer-events:all;background:#1a2744;color:#fff;border:none;border-radius:50%;width:56px;height:56px;font-size:28px;cursor:pointer;box-shadow:0 4px 18px rgba(26,39,68,.5);display:flex;align-items:center;justify-content:center}
+.exp-ov{position:fixed;inset:0;z-index:200;background:#fff;display:none;flex-direction:column;overflow-y:auto}
+.exp-ov.show{display:flex}
+.exp-tb{background:#1a2744;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;flex-shrink:0}
+.exp-tb-title{color:#fff;font-weight:bold;font-size:14px}
+.exp-tb-btns{display:flex;gap:8px}
+.share-btn{background:#4cde7a;color:#0a2010;border:none;border-radius:7px;padding:9px 16px;font-size:14px;font-weight:bold;cursor:pointer}
+.close-btn{background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:7px;padding:9px 11px;font-size:14px;font-weight:bold;cursor:pointer}
+.exp-hint{background:#f0f4ff;padding:8px 14px;font-size:11px;color:#446;text-align:center;flex-shrink:0}
+.exp-body{padding:20px 16px;max-width:700px;margin:0 auto;width:100%}
+.exp-hdr{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #1a2744;padding-bottom:12px;margin-bottom:18px}
+.exp-co{font-size:9px;letter-spacing:3px;color:#7a9ac4;text-transform:uppercase;margin-bottom:3px}
+.exp-ti{font-size:22px;font-weight:bold;line-height:1}
+.exp-nm{font-size:11px;color:#999;margin-top:3px}
+.exp-wl{font-size:9px;color:#bbb;text-transform:uppercase;letter-spacing:2px;text-align:right}
+.exp-wv{font-size:13px;font-weight:bold;text-align:right;margin-top:2px}
+.exp-tw{overflow-x:auto;margin-bottom:18px;-webkit-overflow-scrolling:touch}
+.exp-tbl{width:100%;border-collapse:collapse;font-size:12px;min-width:400px}
+.exp-tbl thead tr{background:#1a2744;color:#fff}
+.exp-tbl th{padding:8px 9px;text-align:left;font-size:8px;letter-spacing:1.5px;text-transform:uppercase}
+.exp-tbl td{padding:7px 9px;border-bottom:1px solid #eee;vertical-align:top}
+.exp-tbl tbody tr:nth-child(even){background:#f8f9fb}
+.exp-tots{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:20px}
+.exp-tmain{background:#1a2744;color:#fff;border-radius:8px;padding:11px 18px;display:flex;align-items:center;gap:12px}
+.exp-tl{font-size:8px;letter-spacing:2px;color:#8fb0d8;text-transform:uppercase}
+.exp-tn{font-size:22px;font-weight:bold}
+.exp-tbox{background:#f4f6fa;border-left:4px solid #1a2744;border-radius:6px;padding:8px 12px;min-width:80px}
+.exp-tbxl{font-size:8px;color:#aaa;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.exp-tbxh{font-size:16px;font-weight:bold;color:#1a2744}
+.exp-tbxu{font-size:10px;color:#aaa;font-weight:normal}
+.exp-ft{margin-top:24px;border-top:1px solid #eee;padding-top:10px;font-size:10px;color:#bbb;display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-top">
+    <div>
+      <div class="co">ASR Plumbing</div>
+      <div class="ti">Time Sheet</div>
+      <div class="nm">Jordan Steiner</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+      <div id="saved" class="saved">AUTO-SAVE</div>
+      <button onclick="toggleTracking()" style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;padding:0">
+        <div id="track-dot" style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.2);transition:background .4s"></div>
+        <span style="font-size:9px;color:rgba(255,255,255,.3);letter-spacing:1px;text-transform:uppercase">GPS</span>
+      </button>
+    </div>
+  </div>
+  <div class="wnav">
+    <button class="wnav-btn" onclick="shiftWeek(-1)">&#8249;</button>
+    <div class="wnav-mid">
+      <div id="wlabel" class="wnav-lbl"></div>
+      <button id="wback" class="wnav-back" onclick="shiftWeek(0)">&#8617; This week</button>
+    </div>
+    <button class="wnav-btn" onclick="shiftWeek(1)">&#8250;</button>
+  </div>
+</div>
+
+<div class="tbar" id="tbar"></div>
+
+<div class="cal">
+  <div class="cal-hdr">
+    <div class="cal-hdr-lbl">&#128197; Townsquare Jobs</div>
+    <button class="cal-status" id="cal-status" onclick="fetchCalendar()">&#8635; Refresh</button>
+  </div>
+  <div id="cal-body"></div>
+</div>
+
+<div class="entries" id="entries"></div>
+
+<div class="fab-row">
+  <button class="fab-exp" onclick="openExport()">&#128196; Export</button>
+  <button class="fab-add" onclick="addRow()">+</button>
+</div>
+
+<div class="exp-ov" id="exp-ov">
+  <div class="exp-tb">
+    <div class="exp-tb-title">&#128196; <span id="exp-title"></span></div>
+    <div class="exp-tb-btns">
+      <button class="share-btn" onclick="doShare()">&#11014; Share</button>
+      <button class="close-btn" onclick="closeExport()">&#10005;</button>
+    </div>
+  </div>
+  <div class="exp-hint">Tap <strong>&#11014; Share</strong> &#8594; Mail &middot; Messages &middot; AirDrop</div>
+  <div class="exp-body" id="exp-body"></div>
+</div>
+
+<script>
+var DAYS  = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+var TYPES = ["Estimate","New Construction","Remodel","Service","Other"];
+var AC_KEY = "asr_ac";
+var calEvents = [];
+var offset = 0, rows = [], openIdx = null, ac = loadAC(), saveTimer = null;
+
+// ── CALENDAR FETCH ───────────────────────────────────────────────────────────
+function fetchCalendar() {
+  var st = document.getElementById("cal-status");
+  st.textContent = "Loading...";
+  var mon = getMonday(offset);
+  var sun = new Date(mon); sun.setDate(mon.getDate() + 7);
+  fetch("/api/calendar?tMin=" + encodeURIComponent(mon.toISOString()) + "&tMax=" + encodeURIComponent(sun.toISOString()))
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      if (data.error) { st.textContent = "Error"; console.warn(data.error); return; }
+      calEvents = data.events || [];
+      st.textContent = calEvents.length ? "\u2713 " + calEvents.length + " jobs" : "No jobs";
+      renderCal();
+    })
+    .catch(function(){ st.textContent = "\u21bb Retry"; });
+}
+
+// ── WEEK HELPERS ─────────────────────────────────────────────────────────────
+function getMonday(off) {
+  var n = new Date(), d = n.getDay(), m = new Date(n);
+  m.setDate(n.getDate() - (d === 0 ? 6 : d - 1) + off * 7);
+  m.setHours(0,0,0,0); return m;
+}
+function wkey(off) { return getMonday(off).toISOString().slice(0,10); }
+function wlabel(off) {
+  var m = getMonday(off), s = new Date(m); s.setDate(m.getDate() + 6);
+  var f = function(d){ return d.toLocaleDateString("en-US",{month:"short",day:"numeric"}); };
+  return f(m) + " \u2013 " + f(s);
+}
+
+// ── STORAGE ──────────────────────────────────────────────────────────────────
+function loadRows(key) {
+  try { var d = localStorage.getItem("asr_ts_" + key); return d ? JSON.parse(d) : [mkRow()]; }
+  catch(e) { return [mkRow()]; }
+}
+function saveRows() {
+  clearTimeout(saveTimer);
+  localStorage.setItem("asr_ts_" + wkey(offset), JSON.stringify(rows));
+  var el = document.getElementById("saved");
+  el.textContent = "\u2713 SAVED"; el.classList.add("on");
+  saveTimer = setTimeout(function(){ el.textContent = "AUTO-SAVE"; el.classList.remove("on"); }, 1500);
+}
+function loadAC() {
+  try { var d = localStorage.getItem(AC_KEY); return d ? JSON.parse(d) : {c:[],j:[]}; }
+  catch(e) { return {c:[],j:[]}; }
+}
+function pushAC(field, val) {
+  var t = val.trim(); if (!t || t.length < 2) return;
+  if (!ac[field]) ac[field] = [];
+  if (ac[field].some(function(x){ return x.toLowerCase() === t.toLowerCase(); })) return;
+  ac[field] = [].concat(ac[field],[t]).sort(function(a,b){ return a.localeCompare(b); });
+  localStorage.setItem(AC_KEY, JSON.stringify(ac));
+}
+
+// ── ROW HELPERS ──────────────────────────────────────────────────────────────
+function mkRow(o) { return Object.assign({day:"",cust:"",desc:"",type:"Service",hrs:"",calId:null},o||{}); }
+function fh(n) { return n%1===0?String(n):n.toFixed(2); }
+function total() { return rows.reduce(function(s,r){ return s+(parseFloat(r.hrs)||0); },0); }
+function byType() {
+  return rows.reduce(function(a,r){ if(r.type&&r.hrs) a[r.type]=(a[r.type]||0)+(parseFloat(r.hrs)||0); return a; },{});
+}
+function upd(i,k,v) { rows[i][k]=v; saveRows(); refreshCard(i); }
+
+// ── CAL HELPERS ──────────────────────────────────────────────────────────────
+function ft(dt) {
+  if(!dt) return "";
+  return new Date(dt).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",hour12:true});
+}
+function fd(dt) {
+  if(!dt) return "";
+  return new Date(dt).toLocaleDateString("en-US",{weekday:"long"});
+}
+function fhrs(s,e) {
+  if(!s||!e) return "";
+  var d=(new Date(e)-new Date(s))/3600000;
+  return d>0?String(d%1===0?d:parseFloat(d.toFixed(2))):"";
+}
+function isAdded(id) { return rows.some(function(r){ return r.calId===id; }); }
+function addCal(ev) {
+  rows.push(mkRow({calId:ev.id,day:fd(ev.start),cust:ev.name,desc:ev.desc||"",type:"Service",hrs:fhrs(ev.start,ev.end)}));
+  openIdx=rows.length-1; saveRows(); render();
+  setTimeout(function(){ var c=document.querySelectorAll(".card"); if(c.length) c[c.length-1].scrollIntoView({behavior:"smooth",block:"center"}); },80);
+}
+
+// ── NAV / ROW OPS ─────────────────────────────────────────────────────────────
+function shiftWeek(dir) {
+  if(dir===0) offset=0; else offset+=dir;
+  rows=loadRows(wkey(offset)); openIdx=null; render();
+}
+function addRow() {
+  rows.push(mkRow()); openIdx=rows.length-1; saveRows(); render();
+  setTimeout(function(){ var c=document.querySelectorAll(".card"); if(c.length) c[c.length-1].scrollIntoView({behavior:"smooth",block:"center"}); },80);
+}
+function removeRow(i) {
+  rows.splice(i,1); if(!rows.length) rows.push(mkRow());
+  openIdx=null; saveRows(); render();
+}
+function toggleCard(i) { openIdx=openIdx===i?null:i; render(); }
+
+// ── AUTOCOMPLETE ─────────────────────────────────────────────────────────────
+function wireAC(inp,drop,field,idx) {
+  inp.addEventListener("input",function(){
+    var v=inp.value.toLowerCase().trim();
+    if(!v){drop.classList.remove("show");return;}
+    var m=(ac[field]||[]).filter(function(s){ return s.toLowerCase().indexOf(v)!==-1&&s.toLowerCase()!==inp.value.toLowerCase(); });
+    if(!m.length){drop.classList.remove("show");return;}
+    drop.innerHTML=m.map(function(s){
+      var re=inp.value.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+      var hi=s.replace(new RegExp("("+re+")","gi"),'<span class="ach">$1</span>');
+      return '<div class="aci" onmousedown="pickAC(event,\''+s.replace(/'/g,"\\'")+'\','+idx+',\''+field+'\')" ontouchend="pickAC(event,\''+s.replace(/'/g,"\\'")+'\','+idx+',\''+field+'\')">'
+        +'<span style="color:#ccc">&#9201;</span><span>'+hi+'</span></div>';
+    }).join("");
+    drop.classList.add("show");
+  });
+  inp.addEventListener("blur",function(){
+    setTimeout(function(){drop.classList.remove("show");},250);
+    if(inp.value.trim().length>=2) pushAC(field,inp.value);
+  });
+  inp.addEventListener("focus",function(){ inp.dispatchEvent(new Event("input")); });
+}
+function pickAC(e,val,idx,field) {
+  e.preventDefault();
+  rows[idx][field==="c"?"cust":"desc"]=val; saveRows();
+  var el=document.getElementById(field+"i"+idx); if(el) el.value=val;
+  document.querySelectorAll(".acd").forEach(function(d){d.classList.remove("show");});
+  pushAC(field,val); refreshCard(idx);
+}
+
+// ── DWELL TRACKING ───────────────────────────────────────────────────────────
+var watchId=null,dwellPos=null,dwellStart=null,dwellTimer=null,lastNotifAddr=null;
+var DWELL_M=120, DWELL_MS=8*60*1000;
+function distM(a,b,c,d){var R=6371000,dL=(c-a)*Math.PI/180,dO=(d-b)*Math.PI/180,x=Math.sin(dL/2)*Math.sin(dL/2)+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dO/2)*Math.sin(dO/2);return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
+function normAddr(s){return String(s||"").toLowerCase().replace(/[^a-z0-9]/g," ").replace(/\s+/g," ").trim();}
+function findMatch(addr){
+  var n=normAddr(addr),words=n.split(" ").filter(function(w){return w.length>2;});
+  for(var j=0;j<calEvents.length;j++){var ev=calEvents[j];if(!ev.loc)continue;var en=normAddr(ev.loc);if(words.filter(function(w){return en.indexOf(w)!==-1;}).length>=2)return{type:"cal",ev:ev};}
+  return null;
+}
+function showDwellBanner(addr,elapsed,match){
+  if(lastNotifAddr===addr)return; lastNotifAddr=addr;
+  var old=document.getElementById("dwell-banner"); if(old) old.remove();
+  var mins=Math.round(elapsed/60000),banner=document.createElement("div");
+  banner.id="dwell-banner";
+  banner.style.cssText="position:fixed;bottom:90px;left:12px;right:12px;z-index:500;background:#1a2744;color:#fff;border-radius:14px;padding:14px 16px;box-shadow:0 6px 24px rgba(0,0,0,.4);font-family:Arial,sans-serif;animation:slideUp .3s ease";
+  if(match&&match.type==="cal"){
+    var ev=match.ev;
+    banner.innerHTML='<div style="font-size:10px;color:#7a9ac4;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px">&#128205; Parked '+mins+' min</div>'
+      +'<div style="font-weight:bold;font-size:15px;margin-bottom:2px">Is this the '+ev.name+' job?</div>'
+      +'<div style="font-size:12px;color:#8fb0d8;margin-bottom:12px">'+(ev.loc||addr)+'</div>'
+      +'<div style="display:flex;gap:8px">'
+      +'<button onclick="dwellAddCal(\''+ev.id+'\','+mins+')" style="flex:1;background:#4cde7a;color:#0a2010;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:bold;cursor:pointer">&#10003; Yes, add to sheet</button>'
+      +'<button onclick="document.getElementById(\'dwell-banner\').remove()" style="background:rgba(255,255,255,.12);color:#fff;border:none;border-radius:8px;padding:10px 14px;font-size:13px;cursor:pointer">Not a job</button>'
+      +'<button onclick="document.getElementById(\'dwell-banner\').remove()" style="background:rgba(255,255,255,.08);color:#8fb0d8;border:none;border-radius:8px;padding:10px 12px;font-size:16px;cursor:pointer">&#10005;</button>'
+      +'</div>';
+  } else {
+    banner.innerHTML='<div style="font-size:10px;color:#7a9ac4;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px">&#128205; Parked '+mins+' min</div>'
+      +'<div style="font-weight:bold;font-size:15px;margin-bottom:2px">Was this a job?</div>'
+      +'<div style="font-size:12px;color:#8fb0d8;margin-bottom:12px">'+addr+'</div>'
+      +'<div style="display:flex;gap:8px">'
+      +'<button onclick="dwellAddNew(\''+addr.replace(/'/g,"\\'")+'\','+mins+')" style="flex:1;background:#4cde7a;color:#0a2010;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:bold;cursor:pointer">+ Add to sheet</button>'
+      +'<button onclick="document.getElementById(\'dwell-banner\').remove()" style="background:rgba(255,255,255,.08);color:#8fb0d8;border:none;border-radius:8px;padding:10px 12px;font-size:16px;cursor:pointer">&#10005;</button>'
+      +'</div>';
+  }
+  document.body.appendChild(banner);
+}
+function dwellAddCal(id,mins){var ev=calEvents.find(function(e){return e.id===id;});if(ev){addCal(ev);var l=rows[rows.length-1];if(l&&!l.hrs){var h=parseFloat((mins/60).toFixed(2));l.hrs=String(h);saveRows();}}var b=document.getElementById("dwell-banner");if(b)b.remove();}
+function dwellAddNew(addr,mins){var today=new Date().toLocaleDateString("en-US",{weekday:"long"});var h=parseFloat((mins/60).toFixed(2));rows.push(mkRow({day:today,type:"Service",hrs:String(h)}));openIdx=rows.length-1;saveRows();render();var b=document.getElementById("dwell-banner");if(b)b.remove();setTimeout(function(){var c=document.querySelectorAll(".card");if(c.length)c[c.length-1].scrollIntoView({behavior:"smooth",block:"center"});},80);}
+function onPos(pos){var lat=pos.coords.latitude,lon=pos.coords.longitude,acc=pos.coords.accuracy;if(acc>200)return;if(!dwellPos){dwellPos={lat:lat,lon:lon};dwellStart=Date.now();return;}var dist=distM(lat,lon,dwellPos.lat,dwellPos.lon);if(dist>DWELL_M){dwellPos={lat:lat,lon:lon};dwellStart=Date.now();lastNotifAddr=null;clearTimeout(dwellTimer);dwellTimer=null;}else{var elapsed=Date.now()-dwellStart;if(elapsed>=DWELL_MS&&!dwellTimer){var la=dwellPos.lat,lo=dwellPos.lon;dwellTimer=setTimeout(function(){fetch("https://nominatim.openstreetmap.org/reverse?lat="+la+"&lon="+lo+"&format=json").then(function(r){return r.json();}).then(function(d){var a=d.address||{};var addr=[a.house_number,a.road,a.city||a.town||a.village,a.state].filter(Boolean).join(", ");if(addr&&addr!==lastNotifAddr)showDwellBanner(addr,elapsed,findMatch(addr));dwellTimer=null;}).catch(function(){dwellTimer=null;});},0);}}}
+function startTracking(){if(!navigator.geolocation||watchId!==null)return;watchId=navigator.geolocation.watchPosition(onPos,null,{enableHighAccuracy:true,maximumAge:30000,timeout:15000});var d=document.getElementById("track-dot");if(d)d.style.background="#4cde7a";}
+function stopTracking(){if(watchId!==null){navigator.geolocation.clearWatch(watchId);watchId=null;}var d=document.getElementById("track-dot");if(d)d.style.background="rgba(255,255,255,.2)";}
+function toggleTracking(){if(watchId!==null)stopTracking();else startTracking();}
+
+// ── RENDER ───────────────────────────────────────────────────────────────────
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function refreshCard(i){
+  var r=rows[i];
+  var ne=document.getElementById("cn"+i);if(ne){ne.textContent=r.cust||"No customer";ne.className="c-name"+(r.cust?"":" empty");}
+  var se=document.getElementById("cs"+i);if(se)se.textContent=[r.desc,r.type].filter(Boolean).join(" \xb7 ")||"Tap to fill in";
+  var he=document.getElementById("ch"+i);if(he){he.textContent=r.hrs||"0";he.className="c-num"+(r.hrs?" v":"");}
+  var de=document.getElementById("cd"+i);if(de)de.textContent=r.day?r.day.slice(0,2).toUpperCase():"\u2014";
+  renderTotals();
+}
+function renderTotals(){
+  var tot=total(),bt=byType();
+  var h='<div class="tcell"><div class="tcell-lbl">Total</div><div class="tcell-num">'+fh(tot)+'<span class="tcell-unit">hrs</span></div></div>';
+  Object.keys(bt).forEach(function(t){h+='<div class="tcell"><div class="tcell-lbl">'+t+'</div><div class="tcell-num">'+fh(bt[t])+'<span class="tcell-unit">hrs</span></div></div>';});
+  document.getElementById("tbar").innerHTML=h;
+}
+function renderCal(){
+  var el=document.getElementById("cal-body");
+  if(!calEvents.length){el.innerHTML='<div class="cal-empty">No appointments this week</div>';return;}
+  var html="";
+  calEvents.forEach(function(ev){
+    var added=isAdded(ev.id),day=fd(ev.start);
+    html+='<div class="cal-ev'+(added?" done":"")+'">'
+      +'<div class="cal-dot'+(added?" done":"")+'">'+day.slice(0,2).toUpperCase()+'</div>'
+      +'<div class="cal-info"><div class="cal-name">'+esc(ev.name)+'</div>'
+      +'<div class="cal-time">'+ft(ev.start)+' \u2013 '+ft(ev.end)+' \xb7 '+day+'</div>'
+      +(ev.desc?'<div class="cal-desc">'+esc(ev.desc)+'</div>':'')
+      +'</div>'
+      +'<button class="cal-btn'+(added?" done":"")+'"'+(added?'':' onclick="addCal(calEvents.find(function(e){return e.id===\''+ev.id+'\'}))"')+'>'+(added?"\u2713":"+ Add")+'</button>'
+      +'</div>';
+  });
+  el.innerHTML=html;
+}
+function renderEntries(){
+  var container=document.getElementById("entries");
+  var ordered=rows.map(function(r,i){return{r:r,i:i};}).sort(function(a,b){
+    var ai=DAYS.indexOf(a.r.day),bi=DAYS.indexOf(b.r.day);
+    if(ai===-1&&bi===-1)return a.i-b.i;
+    if(ai===-1)return 1;if(bi===-1)return -1;
+    return ai!==bi?ai-bi:a.i-b.i;
+  });
+  var html="",lastDay=null;
+  ordered.forEach(function(item){
+    var r=item.r,i=item.i,open=openIdx===i;
+    if(r.day!==lastDay){
+      lastDay=r.day;
+      var dh=rows.filter(function(x){return x.day===r.day;}).reduce(function(s,x){return s+(parseFloat(x.hrs)||0);},0);
+      html+='<div class="day-hdr"><div class="day-hdr-lbl">'+(r.day||"No day assigned")+'</div>'+(dh>0?'<div class="day-hdr-hrs">'+fh(dh)+' hrs</div>':'')+'</div>';
+    }
+    html+='<div class="card'+(open?" open":"")+'" id="card'+i+'">';
+    html+='<div class="card-top" onclick="toggleCard('+i+')">';
+    html+='<div class="c-dot" id="cd'+i+'">'+(r.day?r.day.slice(0,2).toUpperCase():"\u2014")+'</div>';
+    html+='<div class="c-main"><div class="c-name'+(r.cust?"":" empty")+'" id="cn'+i+'">'+(r.cust||"No customer")+'</div>';
+    html+='<div class="c-sub" id="cs'+i+'">'+([r.desc,r.type].filter(Boolean).join(" \xb7 ")||"Tap to fill in")+'</div></div>';
+    html+='<div class="c-hrs"><div class="c-num'+(r.hrs?" v":"")+'" id="ch'+i+'">'+(r.hrs||"0")+'</div><div class="c-lbl">hrs</div></div>';
+    html+='<div class="c-chev">&#9662;</div></div>';
+    if(open){
+      var dO=DAYS.map(function(d){return'<option'+(r.day===d?" selected":"")+'>'+d+'</option>';}).join("");
+      var tO=TYPES.map(function(t){return'<option'+(r.type===t?" selected":"")+'>'+t+'</option>';}).join("");
+      html+='<div class="c-form"><div class="fg">';
+      html+='<div class="ff"><div class="fl">Day</div><select class="fi" onchange="upd('+i+',\'day\',this.value)"><option value="">Select day</option>'+dO+'</select></div>';
+      html+='<div class="ff"><div class="fl">Customer Name</div><div class="acw"><input id="ci'+i+'" class="fi" value="'+esc(r.cust)+'" placeholder="e.g. Herbrucks" autocomplete="off" autocorrect="off" autocapitalize="words" oninput="upd('+i+',\'cust\',this.value)"><div class="acd" id="cdc'+i+'"></div></div></div>';
+      html+='<div class="ff"><div class="fl">Job Description</div><div class="acw"><input id="ji'+i+'" class="fi" value="'+esc(r.desc)+'" placeholder="e.g. Bio Room" autocomplete="off" oninput="upd('+i+',\'desc\',this.value)"><div class="acd" id="cdj'+i+'"></div></div></div>';
+      html+='<div><div class="fl">Job Type</div><select class="fi" onchange="upd('+i+',\'type\',this.value)">'+tO+'</select></div>';
+      html+='<div><div class="fl">Hours</div><input type="number" min="0" step="0.25" class="fi" value="'+(r.hrs||"")+'" placeholder="0" inputmode="decimal" style="text-align:center" oninput="upd('+i+',\'hrs\',this.value)"></div>';
+      html+='</div><button class="rm-btn" onclick="removeRow('+i+')">Remove Entry</button></div>';
+    }
+    html+='</div>';
+  });
+  container.innerHTML=html;
+  rows.forEach(function(_,i){
+    var ci=document.getElementById("ci"+i),cdc=document.getElementById("cdc"+i);
+    var ji=document.getElementById("ji"+i),cdj=document.getElementById("cdj"+i);
+    if(ci&&cdc)wireAC(ci,cdc,"c",i);
+    if(ji&&cdj)wireAC(ji,cdj,"j",i);
+  });
+}
+function render(){
+  document.getElementById("wlabel").textContent=wlabel(offset);
+  document.getElementById("wback").style.display=offset!==0?"block":"none";
+  renderTotals(); renderCal(); renderEntries(); fetchCalendar();
+}
+
+// ── EXPORT ───────────────────────────────────────────────────────────────────
+function openExport(){
+  var filled=rows.filter(function(r){return r.cust||r.hrs;}),tot=total(),bt=byType();
+  document.getElementById("exp-title").textContent=wlabel(offset);
+  var rH=filled.map(function(r,i){return'<tr><td>'+esc(r.day||"")+'</td><td><b>'+esc(r.cust||"")+'</b></td><td>'+esc(r.desc||"")+'</td><td>'+esc(r.type||"")+'</td><td style="text-align:center;font-weight:bold">'+esc(r.hrs||"")+'</td></tr>';}).join("");
+  var tH=Object.keys(bt).map(function(t){return'<div class="exp-tbox"><div class="exp-tbxl">'+t+'</div><div class="exp-tbxh">'+fh(bt[t])+'<span class="exp-tbxu"> hrs</span></div></div>';}).join("");
+  document.getElementById("exp-body").innerHTML=
+    '<div class="exp-hdr"><div><div class="exp-co">ASR Plumbing</div><div class="exp-ti">Time Sheet</div><div class="exp-nm">Jordan Steiner</div></div><div><div class="exp-wl">Week of</div><div class="exp-wv">'+wlabel(offset)+'</div></div></div>'
+    +'<div class="exp-tw"><table class="exp-tbl"><thead><tr><th>Day</th><th>Customer</th><th>Description</th><th>Type</th><th style="text-align:center">Hrs</th></tr></thead>'
+    +'<tbody>'+(rH||'<tr><td colspan="5" style="text-align:center;color:#bbb;padding:14px">No entries</td></tr>')+'</tbody></table></div>'
+    +'<div class="exp-tots"><div class="exp-tmain"><div class="exp-tl">Total Hours</div><div class="exp-tn">'+fh(tot)+'</div></div>'+tH+'</div>'
+    +'<div class="exp-ft"><span>ASR Plumbing &middot; Jordan Steiner</span><span>Generated '+new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})+'</span></div>';
+  document.getElementById("exp-ov").classList.add("show");
+}
+function closeExport(){document.getElementById("exp-ov").classList.remove("show");}
+function doShare(){
+  var filled=rows.filter(function(r){return r.cust||r.hrs;}),tot=total(),bt=byType();
+  var rH=filled.map(function(r,i){return'<tr style="background:'+(i%2===0?"#fff":"#f8f9fb")+'"><td>'+esc(r.day||"")+'</td><td><b>'+esc(r.cust||"")+'</b></td><td>'+esc(r.desc||"")+'</td><td>'+esc(r.type||"")+'</td><td style="text-align:center;font-weight:bold">'+esc(r.hrs||"")+'</td></tr>';}).join("");
+  var sH=Object.keys(bt).map(function(t){return'<div style="background:#f4f6fa;border-left:4px solid #1a2744;border-radius:6px;padding:8px 12px"><div style="font-size:8px;color:#aaa;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">'+t+'</div><div style="font-size:16px;font-weight:bold;color:#1a2744">'+fh(bt[t])+'<span style="font-size:10px;color:#aaa;font-weight:normal"> hrs</span></div></div>';}).join("");
+  var html='<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASR \u2013 '+wlabel(offset)+'</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;color:#1a2744;padding:24px 28px}table{width:100%;border-collapse:collapse;margin-bottom:18px;font-size:13px}thead tr{background:#1a2744;color:#fff}th{padding:8px 9px;text-align:left;font-size:8px;letter-spacing:1.5px;text-transform:uppercase}td{padding:7px 9px;border-bottom:1px solid #eee}@media(max-width:600px){body{padding:14px}table{font-size:11px}}@media print{body{padding:16px 20px}@page{margin:.4in;size:letter}}</style></head><body><div style="display:flex;justify-content:space-between;border-bottom:3px solid #1a2744;padding-bottom:12px;margin-bottom:18px"><div><div style="font-size:9px;letter-spacing:3px;color:#7a9ac4;text-transform:uppercase;margin-bottom:3px">ASR Plumbing</div><div style="font-size:24px;font-weight:bold">Time Sheet</div><div style="font-size:11px;color:#999;margin-top:3px">Jordan Steiner</div></div><div style="text-align:right"><div style="font-size:9px;color:#bbb;text-transform:uppercase;letter-spacing:2px">Week of</div><div style="font-size:13px;font-weight:bold;margin-top:2px">'+wlabel(offset)+'</div></div></div><table><thead><tr><th>Day</th><th>Customer</th><th>Description</th><th>Type</th><th style="text-align:center">Hrs</th></tr></thead><tbody>'+(rH||'<tr><td colspan="5" style="text-align:center;color:#bbb;padding:14px">No entries</td></tr>')+'</tbody></table><div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:20px"><div style="background:#1a2744;color:#fff;border-radius:8px;padding:11px 18px;display:flex;align-items:center;gap:12px"><div style="font-size:8px;letter-spacing:2px;color:#8fb0d8;text-transform:uppercase">Total Hours</div><div style="font-size:24px;font-weight:bold">'+fh(tot)+'</div></div>'+sH+'</div><div style="border-top:1px solid #eee;padding-top:9px;font-size:10px;color:#bbb;display:flex;justify-content:space-between"><span>ASR Plumbing &middot; Jordan Steiner</span><span>Generated '+new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})+'</span></div></body></html>';
+  var blob=new Blob([html],{type:"text/html"});
+  var fname="ASR_Timesheet_"+wlabel(offset).replace(/[^a-z0-9]/gi,"_")+".html";
+  var file=new File([blob],fname,{type:"text/html"});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file],title:"ASR Time Sheet \u2013 "+wlabel(offset)});}
+  else if(navigator.share){navigator.share({title:"ASR Time Sheet \u2013 "+wlabel(offset),text:"Week of "+wlabel(offset)+"\nTotal: "+fh(tot)+" hrs"});}
+  else{var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download=fname;a.click();setTimeout(function(){URL.revokeObjectURL(url);},1000);}
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+rows=loadRows(wkey(0));
+render();
+startTracking();
+</script>
+</body>
+</html>
