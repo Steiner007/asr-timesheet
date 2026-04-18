@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <!-- Background gradient - deep navy to dark blue -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e3060;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#0f1a35;stop-opacity:1"/>
+    </linearGradient>
+    <!-- Metal plate gradient -->
+    <linearGradient id="plate" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#2a3f6e;stop-opacity:1"/>
+      <stop offset="50%" style="stop-color:#1a2744;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#0f1a35;stop-opacity:1"/>
+    </linearGradient>
+    <!-- Clipboard gradient -->
+    <linearGradient id="clipbg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#f5f0e8;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#e8e0d0;stop-opacity:1"/>
+    </linearGradient>
+    <!-- Clip top gradient -->
+    <linearGradient id="cliptop" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#8fa8d0;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#5a7ab0;stop-opacity:1"/>
+    </linearGradient>
+    <!-- Wrench gradient -->
+    <linearGradient id="wrench" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#c0c8d8;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#7a8898;stop-opacity:1"/>
+    </linearGradient>
+    <!-- Check gradient -->
+    <linearGradient id="check" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4cde7a;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#2eb85c;stop-opacity:1"/>
+    </linearGradient>
+    <!-- Corner bolt -->
+    <radialGradient id="bolt">
+      <stop offset="0%" style="stop-color:#8fa8d0;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#3a5070;stop-opacity:1"/>
+    </radialGradient>
+    <!-- Inner shadow filter -->
+    <filter id="innershadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feFlood flood-color="#000" flood-opacity="0.4" result="flood"/>
+      <feComposite in="flood" in2="SourceGraphic" operator="in" result="mask"/>
+      <feGaussianBlur in="mask" stdDeviation="8"/>
+      <feComposite in="SourceGraphic" in2="blurred" operator="over"/>
+    </filter>
+    <filter id="shadow" x="-5%" y="-5%" width="115%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- App icon background with rounded corners -->
+  <rect width="1024" height="1024" rx="224" ry="224" fill="url(#bg)"/>
+
+  <!-- Subtle texture overlay - riveted metal look -->
+  <rect width="1024" height="1024" rx="224" ry="224" fill="url(#plate)" opacity="0.6"/>
+
+  <!-- Corner bolts -->
+  <circle cx="110" cy="110" r="22" fill="url(#bolt)" opacity="0.7"/>
+  <circle cx="110" cy="110" r="8" fill="#c0c8d8" opacity="0.5"/>
+  <circle cx="914" cy="110" r="22" fill="url(#bolt)" opacity="0.7"/>
+  <circle cx="914" cy="110" r="8" fill="#c0c8d8" opacity="0.5"/>
+  <circle cx="110" cy="914" r="22" fill="url(#bolt)" opacity="0.7"/>
+  <circle cx="110" cy="914" r="8" fill="#c0c8d8" opacity="0.5"/>
+  <circle cx="914" cy="914" r="22" fill="url(#bolt)" opacity="0.7"/>
+  <circle cx="914" cy="914" r="8" fill="#c0c8d8" opacity="0.5"/>
+
+  <!-- CLIPBOARD BODY -->
+  <rect x="280" y="200" width="464" height="560" rx="24" ry="24" fill="url(#clipbg)" filter="url(#shadow)"/>
+  <!-- Clipboard inner shadow top -->
+  <rect x="280" y="200" width="464" height="30" rx="24" ry="24" fill="#c8bfa8" opacity="0.4"/>
+  <!-- Paper lines -->
+  <rect x="330" y="340" width="364" height="14" rx="7" fill="#c8c0b0" opacity="0.7"/>
+  <rect x="330" y="382" width="310" height="14" rx="7" fill="#c8c0b0" opacity="0.7"/>
+  <rect x="330" y="424" width="340" height="14" rx="7" fill="#c8c0b0" opacity="0.7"/>
+  <rect x="330" y="466" width="280" height="14" rx="7" fill="#c8c0b0" opacity="0.7"/>
+  <rect x="330" y="508" width="320" height="14" rx="7" fill="#c8c0b0" opacity="0.7"/>
+  <rect x="330" y="550" width="260" height="14" rx="7" fill="#c8c0b0" opacity="0.7"/>
+  <!-- Checkbox dots -->
+  <rect x="330" y="334" width="20" height="20" rx="4" fill="#4cde7a" opacity="0.9"/>
+  <rect x="330" y="376" width="20" height="20" rx="4" fill="#4cde7a" opacity="0.9"/>
+  <rect x="330" y="418" width="20" height="20" rx="4" fill="#7a9ac4" opacity="0.9"/>
+  <rect x="330" y="460" width="20" height="20" rx="4" fill="#4cde7a" opacity="0.9"/>
+  <rect x="330" y="502" width="20" height="20" rx="4" fill="#7a9ac4" opacity="0.9"/>
+  <rect x="330" y="544" width="20" height="20" rx="4" fill="#4cde7a" opacity="0.9"/>
+
+  <!-- CLIPBOARD TOP CLIP -->
+  <rect x="390" y="170" width="244" height="90" rx="14" ry="14" fill="url(#cliptop)" filter="url(#shadow)"/>
+  <rect x="430" y="178" width="164" height="30" rx="10" ry="10" fill="#1a2744" opacity="0.5"/>
+  <!-- Clip hole -->
+  <ellipse cx="512" cy="210" rx="36" ry="22" fill="#1a2744" opacity="0.8"/>
+  <ellipse cx="512" cy="210" rx="24" ry="14" fill="#0f1a35"/>
+
+  <!-- WRENCH (diagonal, lower right of clipboard) -->
+  <g transform="translate(600, 560) rotate(-35)" filter="url(#shadow)">
+    <!-- Wrench handle -->
+    <rect x="-18" y="-140" width="36" height="200" rx="10" fill="url(#wrench)"/>
+    <!-- Wrench head top -->
+    <ellipse cx="0" cy="-140" rx="38" ry="30" fill="url(#wrench)"/>
+    <ellipse cx="0" cy="-140" rx="18" ry="14" fill="#1a2744" opacity="0.6"/>
+    <!-- Wrench head opening -->
+    <rect x="-38" y="-158" width="22" height="36" rx="6" fill="#1a2744" opacity="0.7"/>
+    <rect x="16" y="-158" width="22" height="36" rx="6" fill="#1a2744" opacity="0.7"/>
+  </g>
+
+  <!-- BIG GREEN CHECKMARK overlaid on clipboard -->
+  <g filter="url(#glow)">
+    <polyline points="350,490 420,570 580,390" 
+      stroke="url(#check)" stroke-width="52" stroke-linecap="round" stroke-linejoin="round" fill="none"
+      opacity="0.95"/>
+  </g>
+
+  <!-- BOTTOM LABEL BAND -->
+  <rect x="120" y="800" width="784" height="148" rx="20" ry="20" fill="#1a2744" opacity="0.92"/>
+  <rect x="120" y="800" width="784" height="4" fill="#4cde7a" opacity="0.8"/>
+
+  <!-- ASR text -->
+  <text x="512" y="874" 
+    font-family="Arial Black, Arial, sans-serif" 
+    font-weight="900" 
+    font-size="96" 
+    fill="white" 
+    text-anchor="middle" 
+    letter-spacing="8">ASR</text>
+
+  <!-- PLUMBING text -->
+  <text x="512" y="922" 
+    font-family="Arial, sans-serif" 
+    font-weight="600" 
+    font-size="36" 
+    fill="#7a9ac4" 
+    text-anchor="middle" 
+    letter-spacing="10">PLUMBING</text>
+
+  <!-- Subtle vignette overlay -->
+  <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
+    <stop offset="60%" style="stop-color:#000000;stop-opacity:0"/>
+    <stop offset="100%" style="stop-color:#000000;stop-opacity:0.35"/>
+  </radialGradient>
+  <rect width="1024" height="1024" rx="224" ry="224" fill="url(#vignette)"/>
+</svg>
